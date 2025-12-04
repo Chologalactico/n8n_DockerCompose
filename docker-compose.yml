@@ -1,4 +1,4 @@
-services:
+services: 
   postgres:
     image: postgres:16
     container_name: postgres
@@ -13,12 +13,23 @@ services:
     volumes:
       - ./db-data:/var/lib/postgresql/data
 
-  n8n:
+  redis:
+    image: redis:6
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    restart: unless-stopped
+
+  n8n-main:
     image: n8nio/n8n:latest
-    container_name: n8n
+    container_name: n8n-main
     restart: always
     depends_on:
       - postgres
+      - redis
+    env_file: .env
     environment:
       - GENERIC_TIMEZONE=Europa/Berlin
       - TZ=Europa/Madrid
@@ -29,11 +40,49 @@ services:
       - DB_POSTGRESDB_DATABASE=${DB_POSTGRES_DB}
       - DB_POSTGRESDB_PASSWORD=${DB_POSTGRES_PASSWORD}
       - DB_POSTGRESDB_USER=${DB_POSTGRES_USER}
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
     ports:
       - "5678:5678"
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+
+  n8n-worker:
+    image: n8nio/n8n:latest
+    container_name: n8n-worker
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    env_file: .env
+    command: ["worker","--concurrency=1"]
+    environment:
+      - GENERIC_TIMEZONE=Europa/Berlin
+      - TZ=Europa/Madrid
+      - NODE_ENV=production
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${DB_POSTGRES_DB}
+      - DB_POSTGRESDB_PASSWORD=${DB_POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_USER=${DB_POSTGRES_USER}
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+      - N8N_WORKER_MODE=true
     volumes:
       - ./n8n-data:/home/node/.n8n
 
 volumes:
   db-data:
   n8n-data:
+  redis-data:
