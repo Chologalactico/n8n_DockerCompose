@@ -15,7 +15,7 @@ services:
 
   redis:
     image: redis:6
-    container_name: redis
+    container_name: n8n-redis
     ports:
       - "6379:6379"
     volumes:
@@ -31,7 +31,7 @@ services:
       - redis
     env_file: .env
     environment:
-      - GENERIC_TIMEZONE=Europa/Berlin
+      - GENERIC_TIMEZONE=America/Bogota
       - TZ=Europa/Madrid
       - NODE_ENV=production
       - DB_TYPE=postgresdb
@@ -46,6 +46,8 @@ services:
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      - N8N_RUNNERS_ENABLED=true
       - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
     ports:
       - "5678:5678"
@@ -62,7 +64,7 @@ services:
     env_file: .env
     command: ["worker","--concurrency=1"]
     environment:
-      - GENERIC_TIMEZONE=Europa/Berlin
+      - GENERIC_TIMEZONE=America/Bogota
       - TZ=Europa/Madrid
       - NODE_ENV=production
       - DB_TYPE=postgresdb
@@ -77,6 +79,8 @@ services:
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      - N8N_RUNNERS_ENABLED=true
       - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
       - N8N_WORKER_MODE=true
     volumes:
