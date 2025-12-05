@@ -30,7 +30,7 @@ docker run -it -p 5678:5678 n8nio/n8n
 n8n 
 
 ```
-Accede a n8n en: `http://localhost:5678`
+Accede a n8n en: http://localhost:5678
 ---
 Primeramente crea una carpeta con el nombre que quieras asignarle y sigue los siguientes pasos
 
@@ -192,7 +192,7 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## ✨ Autor
 
-Tu Nombre - [@Chologalactico](https://github.com/Chologalactico)
+- [@Chologalactico](https://github.com/Chologalactico)
 
 ---
 
